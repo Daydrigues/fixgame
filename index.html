@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find the Mistake</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="dist/styles.css">
-    <!-- Supabase Client -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; }
@@ -28,8 +25,8 @@
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <!-- Header -->
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-indigo-800 mb-2"> Find the Mistake</h1>
-            <p class="text-lg text-gray-600"> Find and correct grammatical errors!</p>
+            <h1 class="text-4xl font-bold text-indigo-800 mb-2">Find the Mistake</h1>
+            <p class="text-lg text-gray-600">Find and correct grammatical errors!</p>
         </div>
 
         <!-- Game Container -->
@@ -61,21 +58,13 @@
                     >
                 </div>
 
-                <button 
-                    id="checkButton" 
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 w-full mb-4"
-                >
+                <button id="checkButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 w-full mb-4">
                     Check Answer
                 </button>
 
-                <!-- Feedback Area -->
                 <div id="feedback" class="hidden mb-4"></div>
 
-                <!-- Next Button -->
-                <button 
-                    id="nextButton" 
-                    class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 w-full hidden"
-                >
+                <button id="nextButton" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 w-full hidden">
                     Next Question
                 </button>
             </div>
@@ -89,35 +78,30 @@
                 <p class="text-xl text-gray-600 mb-6">You answered <span id="finalScore"></span> out of <span id="finalTotal"></span> questions correctly!</p>
                 
                 <div class="bg-gray-50 rounded-lg p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4"> Summary of Responses:</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Summary of Responses:</h3>
                     <div id="summaryList" class="text-left space-y-2"></div>
                 </div>
 
-                <button 
-                    id="restartButton" 
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-lg transition-colors duration-200 text-lg"
-                >
+                <button id="restartButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-lg transition-colors duration-200 text-lg">
                     🔄 Play Again
                 </button>
             </div>
         </div>
     </div>
-    <footer><center> made by ❤ Dayanni Rodrigues e Maria Augusta</center></footer>
 
-    <script>
-        // 🔑 Substitua pelas suas credenciais do Supabase
+    <footer><center>made by ❤ Dayanni Rodrigues e Maria Augusta</center></footer>
+
+    <!-- Script tipo módulo, pronto pra Vercel -->
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
         const SUPABASE_URL = "https://iedzobqbgjidjuttlzbd.supabase.co"
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllZHpvYnFiZ2ppZGp1dHRsemJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NDA4NjYsImV4cCI6MjA3MjUxNjg2Nn0.mV8-fyeDghY2Isb_IaBqjG58E48Zo7EDHpWqbVF83pM"
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-        let sentenceBank = []
-        let currentQuestions = []
-        let currentQuestionIndex = 0
-        let score = 0
-        let answers = []
-        const totalQuestions = 5
+        let sentenceBank = [], currentQuestions = [], currentQuestionIndex = 0, score = 0, answers = [], totalQuestions = 5
 
-        // DOM Elements
+        // DOM
         const gameContainer = document.getElementById('gameContainer')
         const resultsContainer = document.getElementById('resultsContainer')
         const incorrectSentence = document.getElementById('incorrectSentence')
@@ -129,199 +113,101 @@
         const currentQuestionElement = document.getElementById('currentQuestion')
         const restartButton = document.getElementById('restartButton')
 
-        // Função para carregar frases do Supabase
         async function loadSentences() {
-            let { data, error } = await supabase.from('sentences').select('*')
-            if (error) {
-                console.error("Erro ao buscar frases:", error)
-                return []
-            }
+            const { data, error } = await supabase.from('sentences').select('*')
+            if(error){ console.error("Erro ao buscar frases:", error); return [] }
             return data.map(item => ({ incorrect: item.incorrect, correct: item.correct }))
         }
 
-        // Embaralhar array
         function shuffleArray(array) {
             const shuffled = [...array]
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1))
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+            for(let i=shuffled.length-1;i>0;i--){
+                const j=Math.floor(Math.random()*(i+1))
+                [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]
             }
             return shuffled
         }
 
-        // Inicializar jogo
         async function initGame() {
             sentenceBank = await loadSentences()
-            if (!sentenceBank.length) {
-                alert("Erro: Nenhuma frase carregada do banco.")
-                return
-            }
+            if(!sentenceBank.length){ alert("Erro: Nenhuma frase carregada do banco."); return }
 
-            const shuffled = shuffleArray(sentenceBank)
-            currentQuestions = shuffled.slice(0, totalQuestions)
-
-            currentQuestionIndex = 0
-            score = 0
-            answers = []
-
+            currentQuestions = shuffleArray(sentenceBank).slice(0, totalQuestions)
+            currentQuestionIndex=0; score=0; answers=[]
             gameContainer.classList.remove('hidden')
             resultsContainer.classList.add('hidden')
-
             updateDisplay()
             loadQuestion()
         }
 
-        // Atualizar display
-        function updateDisplay() {
+        function updateDisplay(){
             scoreElement.textContent = score
-            currentQuestionElement.textContent = currentQuestionIndex + 1
+            currentQuestionElement.textContent = currentQuestionIndex+1
             document.getElementById('totalQuestions').textContent = totalQuestions
         }
 
-        // Carregar questão
-        function loadQuestion() {
-            if (currentQuestionIndex >= totalQuestions) {
-                showResults()
-                return
-            }
-
+        function loadQuestion(){
+            if(currentQuestionIndex>=totalQuestions){ showResults(); return }
             const question = currentQuestions[currentQuestionIndex]
             incorrectSentence.textContent = question.incorrect
-            userAnswer.value = ''
-            userAnswer.focus()
-
+            userAnswer.value=''; userAnswer.focus()
             checkButton.classList.remove('hidden')
             nextButton.classList.add('hidden')
-            feedback.classList.add('hidden')
-            feedback.className = 'hidden mb-4'
-
+            feedback.className='hidden mb-4'
             updateDisplay()
         }
 
-        // Normalizar texto
-        function normalizeText(text) {
-            return text.toLowerCase().trim().replace(/[.,!?;]/g, '').replace(/\s+/g, ' ')
-        }
+        function normalizeText(text){ return text.toLowerCase().trim().replace(/[.,!?;]/g,'').replace(/\s+/g,' ') }
 
-        // Verificar resposta
-        function checkAnswer() {
+        function checkAnswer(){
             const userText = userAnswer.value.trim()
-            if (!userText) {
-                userAnswer.classList.add('shake')
-                setTimeout(() => userAnswer.classList.remove('shake'), 500)
-                return
-            }
-
-            const question = currentQuestions[currentQuestionIndex]
-            const isCorrect = normalizeText(userText) === normalizeText(question.correct)
-
-            answers.push({
-                question: question.incorrect,
-                userAnswer: userText,
-                correctAnswer: question.correct,
-                isCorrect: isCorrect
-            })
-
-            if (isCorrect) {
-                score++
-                feedback.innerHTML = `
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg bounce">
-                        <div class="flex items-center">
-                            <span class="text-2xl mr-3">✅</span>
-                            <div>
-                                <strong>Correto!</strong>
-                                <p class="mt-1">Excelente trabalho! A resposta está perfeita.</p>
-                            </div>
-                        </div>
-                    </div>
-                `
-                scoreElement.textContent = score
-            } else {
-                feedback.innerHTML = `
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shake">
-                        <div class="flex items-start">
-                            <span class="text-2xl mr-3">❌</span>
-                            <div>
-                                <strong>Incorreto!</strong>
-                                <p class="mt-1"><strong>Resposta correta:</strong> ${question.correct}</p>
-                            </div>
-                        </div>
-                    </div>
-                `
-            }
-
+            if(!userText){ userAnswer.classList.add('shake'); setTimeout(()=>userAnswer.classList.remove('shake'),500); return }
+            const question=currentQuestions[currentQuestionIndex]
+            const isCorrect=normalizeText(userText)===normalizeText(question.correct)
+            answers.push({question:question.incorrect,userAnswer:userText,correctAnswer:question.correct,isCorrect})
+            if(isCorrect){ score++; feedback.innerHTML=`<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg bounce"><div class="flex items-center"><span class="text-2xl mr-3">✅</span><div><strong>Correto!</strong><p class="mt-1">Excelente trabalho! A resposta está perfeita.</p></div></div></div>`; scoreElement.textContent=score }
+            else{ feedback.innerHTML=`<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shake"><div class="flex items-start"><span class="text-2xl mr-3">❌</span><div><strong>Incorreto!</strong><p class="mt-1"><strong>Resposta correta:</strong> ${question.correct}</p></div></div></div>` }
             feedback.classList.remove('hidden')
             checkButton.classList.add('hidden')
-
-            if (currentQuestionIndex < totalQuestions - 1) {
-                nextButton.classList.remove('hidden')
-                nextButton.textContent = 'Próxima Questão'
-            } else {
-                nextButton.classList.remove('hidden')
-                nextButton.textContent = 'Ver Resultados'
-            }
+            nextButton.classList.remove('hidden')
+            nextButton.textContent=currentQuestionIndex<totalQuestions-1?'Próxima Questão':'Ver Resultados'
         }
 
-        // Próxima questão
-        function nextQuestion() {
-            currentQuestionIndex++
-            loadQuestion()
-        }
+        function nextQuestion(){ currentQuestionIndex++; loadQuestion() }
 
-        // Mostrar resultados
-        function showResults() {
+        function showResults(){
             gameContainer.classList.add('hidden')
             resultsContainer.classList.remove('hidden')
-
-            const percentage = (score / totalQuestions) * 100
-            const performanceIcon = document.getElementById('performanceIcon')
-            const performanceTitle = document.getElementById('performanceTitle')
-
-            if (percentage >= 80) {
-                performanceIcon.textContent = '🌟'
-                performanceTitle.textContent = 'Excelente!'
-                performanceTitle.className = 'text-3xl font-bold mb-4 text-yellow-600'
-            } else if (percentage >= 60) {
-                performanceIcon.textContent = '👍'
-                performanceTitle.textContent = 'Muito Bom!'
-                performanceTitle.className = 'text-3xl font-bold mb-4 text-green-600'
-            } else {
-                performanceIcon.textContent = '💡'
-                performanceTitle.textContent = 'Precisa Melhorar!'
-                performanceTitle.className = 'text-3xl font-bold mb-4 text-blue-600'
-            }
-
-            document.getElementById('finalScore').textContent = score
-            document.getElementById('finalTotal').textContent = totalQuestions
-
-            const summaryList = document.getElementById('summaryList')
-            summaryList.innerHTML = answers.map((answer, index) => `
-                <div class="flex items-start space-x-3 p-3 rounded-lg ${answer.isCorrect ? 'bg-green-50' : 'bg-red-50'}">
-                    <span class="text-xl">${answer.isCorrect ? '✅' : '❌'}</span>
+            const percentage = (score/totalQuestions)*100
+            const performanceIcon=document.getElementById('performanceIcon')
+            const performanceTitle=document.getElementById('performanceTitle')
+            if(percentage>=80){ performanceIcon.textContent='🌟'; performanceTitle.textContent='Excelente!'; performanceTitle.className='text-3xl font-bold mb-4 text-yellow-600'}
+            else if(percentage>=60){ performanceIcon.textContent='👍'; performanceTitle.textContent='Muito Bom!'; performanceTitle.className='text-3xl font-bold mb-4 text-green-600'}
+            else{ performanceIcon.textContent='💡'; performanceTitle.textContent='Precisa Melhorar!'; performanceTitle.className='text-3xl font-bold mb-4 text-blue-600'}
+            document.getElementById('finalScore').textContent=score
+            document.getElementById('finalTotal').textContent=totalQuestions
+            const summaryList=document.getElementById('summaryList')
+            summaryList.innerHTML=answers.map((answer,index)=>`
+                <div class="flex items-start space-x-3 p-3 rounded-lg ${answer.isCorrect?'bg-green-50':'bg-red-50'}">
+                    <span class="text-xl">${answer.isCorrect?'✅':'❌'}</span>
                     <div class="flex-1">
-                        <p class="font-medium text-gray-800">Questão ${index + 1}: ${answer.question}</p>
-                        <p class="text-sm text-gray-600 mt-1">
-                            <strong>Sua resposta:</strong> ${answer.userAnswer}
-                        </p>
-                        ${!answer.isCorrect ? `<p class="text-sm text-green-600 mt-1"><strong>Correto:</strong> ${answer.correctAnswer}</p>` : ''}
+                        <p class="font-medium text-gray-800">Questão ${index+1}: ${answer.question}</p>
+                        <p class="text-sm text-gray-600 mt-1"><strong>Sua resposta:</strong> ${answer.userAnswer}</p>
+                        ${!answer.isCorrect?`<p class="text-sm text-green-600 mt-1"><strong>Correto:</strong> ${answer.correctAnswer}</p>`:''}
                     </div>
                 </div>
             `).join('')
         }
 
-        // Event Listeners
-        checkButton.addEventListener('click', checkAnswer)
-        nextButton.addEventListener('click', nextQuestion)
-        restartButton.addEventListener('click', initGame)
-        userAnswer.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !checkButton.classList.contains('hidden')) {
-                checkAnswer()
-            }
-        })
+        checkButton.addEventListener('click',checkAnswer)
+        nextButton.addEventListener('click',nextQuestion)
+        restartButton.addEventListener('click',initGame)
+        userAnswer.addEventListener('keypress',(e)=>{if(e.key==='Enter'&&!checkButton.classList.contains('hidden'))checkAnswer()})
 
-        // Iniciar
         initGame()
     </script>
 </body>
 </html>
+
+
 
