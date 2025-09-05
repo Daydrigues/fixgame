@@ -1,0 +1,17 @@
+{
+  "name": "fixgame",
+  "version": "1.0.0",
+  "description": "Um jogo educativo simples em HTML, CSS (Tailwind) e JavaScript, onde o jogador deve **corrigir frases em inglês com erros gramaticais**.   Projeto criado para praticar inglês de forma divertida e interativa. 🎯",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.13"
+  }
+}
