@@ -13,3 +13,8 @@ Projeto criado para praticar inglês de forma divertida e interativa. 🎯
    - Sua pontuação 🏆
    - Um resumo das respostas ✅❌
    - Opção de jogar novamente 🔄
+
+
+Alunos:
+Dayanni Rodrigues 
+ Maria Augusta 
